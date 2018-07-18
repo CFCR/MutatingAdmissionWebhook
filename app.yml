@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ProxyAllMAW
+  labels:
+    app: ProxyAllMAW
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ProxyAllMAW
+  template:
+    metadata:
+      labels:
+        app: ProxyAllMAW
+    spec:
+      containers:
+      - name: ProxyAllMAW
+        image: pcfkubo/cfcr-sample-mutating-admission-webhook-proxy-amd64:0.1-dev
+        ports:
+        - containerPort: 443
+        volumeMounts:
+        - name: certs
+          mountPath: "/webhook.local.config/certificates"
+          readonly: true
+        args:
+        - --tls-cert-file=/webhook.local.config/certificates/tls.crt
+        - --tls-private-key-file=/webhook.local.config/certificates/tls.key
+      volumes:
+      - name: certs
+        secret:
+          secretName: ProxyAllMAW-Secret
+          items:
+          - key: "tls.crt"
+            path: ./tls.crt
+          - key: "tls.key"
+            path: ./tls.key
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: ProxyAllMAW-Service
+spec:
+  selector:
+    app: ProxyAllMAW
+  ports:
+  - protocol: TCP
+    port: 443
+    targetPort: 443

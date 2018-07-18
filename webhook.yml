@@ -1,0 +1,19 @@
+apiVersion: admissionregistration.k8s.io/v1beta1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: ProxyAllMAW-webhook
+webhooks:
+- name: ProxyAllMAW-webhook
+  rules:
+  - apiGroups:
+    - ""
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    resources:
+    - pods
+  clientConfig:
+    service:
+      namespace: cfcr-system
+      name: ProxyAllMAW-Service
